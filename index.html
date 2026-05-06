@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>급여 관리</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   <style>
     * {
       margin: 0;
@@ -547,6 +549,7 @@
     <div class="header-inner">
       <div class="logo">₩</div>
       <h1 class="app-title">급여 관리</h1>
+        <div id="sync-status" style="font-size:10px;padding:3px 8px;border-radius:12px;background:#d1fae5;color:#065f46;font-weight:500;margin-left:auto;">동기화됨</div>
     </div>
   </header>
 
@@ -877,6 +880,97 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
   <script>
+    // ========== Firebase 초기화 ==========
+    let db = null;
+    const FIREBASE_URL_KEY = 'salaryApp_firebaseURL';
+    
+    function checkFirebaseSetup() {
+      const savedUrl = localStorage.getItem(FIREBASE_URL_KEY);
+      if (!savedUrl) {
+        showFirebaseSetup();
+        return false;
+      }
+      try {
+        firebase.initializeApp({ databaseURL: savedUrl });
+        db = firebase.database();
+        
+        // 연결 상태 모니터링
+        db.ref('.info/connected').on('value', (snap) => {
+          const el = document.getElementById('sync-status');
+          if (snap.val() === true) {
+            el.textContent = '동기화됨';
+            el.style.background = '#d1fae5';
+            el.style.color = '#065f46';
+          } else {
+            el.textContent = '오프라인';
+            el.style.background = '#fee2e2';
+            el.style.color = '#991b1b';
+          }
+        });
+        
+        return true;
+      } catch (e) {
+        localStorage.removeItem(FIREBASE_URL_KEY);
+        showFirebaseSetup();
+        return false;
+      }
+    }
+    
+    function showFirebaseSetup() {
+      document.body.innerHTML = `
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:#fafaf9;">
+          <div style="background:white;border-radius:24px;padding:2rem;max-width:480px;width:100%;border:0.5px solid #e7e5e4;">
+            <h1 style="font-size:20px;font-weight:700;margin-bottom:0.5rem;text-align:center;">🔥 Firebase 설정</h1>
+            <p style="font-size:13px;color:#78716c;text-align:center;margin-bottom:1.5rem;">실시간 데이터 공유를 위해 Firebase를 연결하세요</p>
+            
+            <div style="background:#f9fafb;border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;">
+              <strong style="display:block;margin-bottom:0.5rem;">1️⃣ Firebase Console 접속</strong>
+              <a href="https://console.firebase.google.com" target="_blank" style="color:#3b82f6;">console.firebase.google.com →</a>
+            </div>
+            
+            <div style="background:#f9fafb;border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;">
+              <strong style="display:block;margin-bottom:0.5rem;">2️⃣ 프로젝트 만들기</strong>
+              [프로젝트 추가] → 이름 입력 → Analytics 끄기 → [만들기]
+            </div>
+            
+            <div style="background:#f9fafb;border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:13px;">
+              <strong style="display:block;margin-bottom:0.5rem;">3️⃣ Realtime Database 생성</strong>
+              왼쪽 메뉴 [빌드] → [Realtime Database] → [데이터베이스 만들기]<br>
+              위치: <strong>미국</strong> → <strong>테스트 모드</strong>에서 시작
+            </div>
+            
+            <div style="background:#f9fafb;border-radius:12px;padding:1rem;margin-bottom:1.5rem;font-size:13px;">
+              <strong style="display:block;margin-bottom:0.5rem;">4️⃣ Database URL 복사</strong>
+              Realtime Database 페이지 상단의 URL을 복사하세요
+            </div>
+            
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:4px;">Database URL</label>
+            <input type="text" id="fb-url-input" placeholder="https://your-project-default-rtdb.firebaseio.com" 
+              style="width:100%;padding:12px;border:2px solid #e7e5e4;border-radius:12px;font-size:14px;margin-bottom:1rem;">
+            
+            <button onclick="saveFirebaseURL()" style="width:100%;padding:14px;background:#1c1917;color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">
+              연결하기
+            </button>
+            
+            <p style="font-size:11px;color:#a8a29e;text-align:center;margin-top:1rem;">
+              * 이미 시재관리 앱에서 Firebase를 사용 중이라면<br>새 프로젝트를 만들거나 같은 프로젝트를 사용해도 됩니다
+            </p>
+          </div>
+        </div>
+      `;
+    }
+    
+    function saveFirebaseURL() {
+      const url = document.getElementById('fb-url-input').value.trim();
+      if (!url || (!url.includes('firebaseio.com') && !url.includes('firebasedatabase.app'))) {
+        alert('올바른 Firebase Database URL을 입력해주세요.\n\n예: https://your-project-default-rtdb.firebaseio.com');
+        return;
+      }
+      localStorage.setItem(FIREBASE_URL_KEY, url);
+      window.location.reload();
+    }
+
+    // ========== 메인 앱 ==========
     const app = {
       currentTab: 'today',
       currentDate: new Date(),
@@ -982,57 +1076,65 @@
       },
 
       loadData() {
-        const saved = localStorage.getItem('salaryAppData');
-        if (saved) {
-          this.data = JSON.parse(saved);
-        } else {
-          this.data = {
-            employees: [
-              {
-                id: 1,
-                name: '김예슬',
-                status: 'active',
-                hireDate: '2026-03-01',
-                colorIndex: 0,
-                profileImage: null,
-                schedules: [
-                  { day: '월', period: '오후', hours: 7, wage: 10500, startDate: '2026-04-01' },
-                  { day: '수', period: '오후', hours: 7, wage: 10500, startDate: '2026-04-01' }
-                ]
-              },
-              {
-                id: 2,
-                name: '서유빈',
-                status: 'active',
-                hireDate: '2026-03-01',
-                colorIndex: 1,
-                profileImage: null,
-                schedules: [
-                  { day: '월', period: '오전', hours: 4.5, wage: 10320, startDate: '2026-03-01' },
-                  { day: '목', period: '오전', hours: 5.5, wage: 10320, startDate: '2026-03-01' },
-                  { day: '금', period: '오전', hours: 4.5, wage: 10320, startDate: '2026-03-01' }
-                ]
-              },
-              {
-                id: 3,
-                name: '이재상',
-                status: 'active',
-                hireDate: '2026-04-01',
-                colorIndex: 2,
-                profileImage: null,
-                schedules: [
-                  { day: '화', period: '오후', hours: 7, wage: 10320, startDate: '2026-04-01' }
-                ]
-              }
-            ],
-            attendance: []
-          };
-          this.saveData();
-        }
+        if (!db) return;
+        
+        // Firebase에서 실시간 데이터 수신
+        db.ref('salaryApp').on('value', (snapshot) => {
+          const firebaseData = snapshot.val();
+          
+          if (firebaseData) {
+            this.data = {
+              employees: firebaseData.employees || [],
+              attendance: firebaseData.attendance || []
+            };
+          } else {
+            // 첫 실행 시 기본 데이터 설정
+            this.data = {
+              employees: [],
+              attendance: []
+            };
+            this.saveData();
+          }
+          
+          // 화면 갱신
+          this.render();
+          
+          // 동기화 상태 업데이트
+          const el = document.getElementById('sync-status');
+          if (el) {
+            el.textContent = '동기화됨';
+            el.style.background = '#d1fae5';
+            el.style.color = '#065f46';
+          }
+        });
       },
 
       saveData() {
-        localStorage.setItem('salaryAppData', JSON.stringify(this.data));
+        if (!db) return;
+        
+        // 동기화 표시
+        const el = document.getElementById('sync-status');
+        if (el) {
+          el.textContent = '저장 중...';
+          el.style.background = '#fef3c7';
+          el.style.color = '#92400e';
+        }
+        
+        // Firebase에 저장
+        db.ref('salaryApp').set(this.data).then(() => {
+          if (el) {
+            el.textContent = '동기화됨';
+            el.style.background = '#d1fae5';
+            el.style.color = '#065f46';
+          }
+        }).catch((error) => {
+          console.error('Firebase 저장 실패:', error);
+          if (el) {
+            el.textContent = '오류';
+            el.style.background = '#fee2e2';
+            el.style.color = '#991b1b';
+          }
+        });
       },
 
       formatDate(d) {
@@ -2108,7 +2210,10 @@
       }
     };
 
-    app.init();
+    // Firebase 설정 확인 후 앱 시작
+    if (checkFirebaseSetup()) {
+      app.init();
+    }
   </script>
 </body>
 </html>
