@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급여 관리</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: #fafaf9;
+      color: #1c1917;
+      line-height: 1.5;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: white;
+      border-bottom: 0.5px solid #e7e5e4;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: #1c1917;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .app-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* Bottom Nav */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 0.5px solid #e7e5e4;
+      z-index: 100;
+    }
+
+    .nav-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 0;
+      border: none;
+      background: none;
+      color: #a8a29e;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .nav-btn.active {
+      color: #1c1917;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Screen */
+    .screen {
+      display: none;
+      padding: 1rem;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border: 0.5px solid #e7e5e4;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-meta {
+      font-size: 13px;
+      color: #78716c;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #78716c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .section-subtitle {
+      font-size: 10px;
+      color: #a8a29e;
+    }
+
+    /* Button */
+    .btn {
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #1c1917;
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:disabled {
+      background: #d6d3d1;
+      color: #78716c;
+    }
+
+    .btn-secondary {
+      background: #f5f5f4;
+      color: #1c1917;
+      flex: 1;
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 0.5px solid #fca5a5;
+      color: #dc2626;
+      flex: 1;
+    }
+
+    /* Input */
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 0.5px solid #e7e5e4;
+      border-radius: 10px;
+      background: #fafaf9;
+      color: #1c1917;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #a8a29e;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #1c1917;
+    }
+
+    /* Date Picker */
+    .date-picker {
+      background: white;
+      border: 0.5px solid #e7e5e4;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .date-nav button {
+      padding: 6px;
+      border-radius: 8px;
+      background: none;
+      border: none;
+      color: #78716c;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-nav button:hover {
+      background: #f5f5f4;
+    }
+
+    .date-current {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      font-size: 14px;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Color Picker */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .color-option {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .color-option.selected {
+      border-color: #1c1917;
+      transform: scale(1.1);
+    }
+
+    /* Image Upload */
+    .image-upload {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px dashed #e7e5e4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .image-upload:hover {
+      border-color: #a8a29e;
+    }
+
+    .image-upload img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-upload input {
+      display: none;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #78716c;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Calendar */
+    .calendar {
+      background: white;
+      border: 0.5px solid #e7e5e4;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .calendar-day-header {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #78716c;
+      padding: 8px 4px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      font-size: 12px;
+    }
+
+    .calendar-day:hover {
+      background: #f5f5f4;
+    }
+
+    .calendar-day.today {
+      background: #1c1917;
+      color: white;
+    }
+
+    .calendar-day.has-record {
+      background: #dbeafe;
+    }
+
+    .calendar-day.has-record.today {
+      background: #1c1917;
+    }
+
+    .calendar-day-dots {
+      display: flex;
+      gap: 2px;
+      margin-top: 2px;
+    }
+
+    .calendar-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      background: #1c1917;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .toast.error {
+      background: #dc2626;
+    }
+
+    /* Chart */
+    .chart-container {
+      background: white;
+      border: 0.5px solid #e7e5e4;
+      border-radius: 16px;
+      padding: 16px;
+      height: 250px;
+      position: relative;
+    }
+
+    /* Utility */
+    .hidden {
+      display: none !important;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .gap-2 {
+      gap: 8px;
+    }
+
+    .gap-3 {
+      gap: 12px;
+    }
+
+    .mb-2 {
+      margin-bottom: 8px;
+    }
+
+    .mb-3 {
+      margin-bottom: 12px;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .text-muted {
+      color: #78716c;
+    }
+
+    .text-sm {
+      font-size: 13px;
+    }
+
+    .text-xs {
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">₩</div>
+      <h1 class="app-title">급여 관리</h1>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- 오늘 화면 -->
+    <div id="screen-today" class="screen active">
+      <div class="date-picker">
+        <div class="date-nav">
+          <button onclick="app.changeDate(-1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div>
+            <input type="date" id="today-date" onchange="app.setDate(this.value)" 
+              style="text-align: center; font-weight: 600; font-size: 14px; border: none; background: none; cursor: pointer;">
+          </div>
+          <button onclick="app.changeDate(1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="today-content"></div>
+
+      <button class="btn btn-primary" onclick="app.showManualRecordModal()">
+        + 수동 기록 추가
+      </button>
+    </div>
+
+    <!-- 근무 화면 (달력) -->
+    <div id="screen-calendar" class="screen">
+      <div class="date-picker">
+        <div class="date-nav">
+          <button onclick="app.changeCalendarMonth(-1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="date-current" id="calendar-month"></div>
+          <button onclick="app.changeCalendarMonth(1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="calendar">
+        <div class="calendar-grid">
+          <div class="calendar-day-header">일</div>
+          <div class="calendar-day-header">월</div>
+          <div class="calendar-day-header">화</div>
+          <div class="calendar-day-header">수</div>
+          <div class="calendar-day-header">목</div>
+          <div class="calendar-day-header">금</div>
+          <div class="calendar-day-header">토</div>
+        </div>
+        <div class="calendar-grid" id="calendar-days"></div>
+      </div>
+
+      <div id="calendar-detail" class="hidden" style="margin-top: 16px;"></div>
+    </div>
+
+    <!-- 급여 화면 -->
+    <div id="screen-salary" class="screen">
+      <div class="date-picker">
+        <div class="date-nav">
+          <button onclick="app.changeSalaryMonth(-1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="date-current" id="salary-month"></div>
+          <button onclick="app.changeSalaryMonth(1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="salary-list"></div>
+
+      <div class="card" style="background: #1c1917; color: white; margin-top: 16px;">
+        <div class="flex items-center justify-between">
+          <span style="font-size: 13px;">총 지급액</span>
+          <span style="font-size: 24px; font-weight: 700;" id="total-salary">₩0</span>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top: 12px;" onclick="app.downloadStatement()">
+        명세서 다운로드
+      </button>
+    </div>
+
+    <!-- 통계 화면 -->
+    <div id="screen-stats" class="screen">
+      <div class="date-picker">
+        <div class="date-nav">
+          <button onclick="app.changeStatsMonth(-1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <div class="date-current" id="stats-month"></div>
+          <button onclick="app.changeStatsMonth(1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">월별 인건비</h3>
+        </div>
+        <div class="chart-container">
+          <canvas id="salary-chart"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">직원별 근무 시간</h3>
+        </div>
+        <div id="employee-stats"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">이달의 MVP</h3>
+        </div>
+        <div id="mvp-card"></div>
+      </div>
+    </div>
+
+    <!-- 직원 화면 -->
+    <div id="screen-employees" class="screen">
+      <div class="section">
+        <div class="section-header">
+          <h3 class="section-title">재직 중</h3>
+          <span class="section-subtitle" id="active-count">0명</span>
+        </div>
+        <div id="active-employees"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="app.showEmployeeModal()">
+        + 새 직원 추가
+      </button>
+
+      <div class="section" id="retired-section" style="display: none; margin-top: 32px;">
+        <div class="section-header">
+          <h3 class="section-title" style="color: #a8a29e;">퇴사</h3>
+          <span class="section-subtitle" id="retired-count">0명</span>
+        </div>
+        <div id="retired-employees"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav>
+    <div class="nav-inner">
+      <button class="nav-btn active" onclick="app.switchTab('today')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span class="nav-label">오늘</span>
+      </button>
+      <button class="nav-btn" onclick="app.switchTab('calendar')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span class="nav-label">근무</span>
+      </button>
+      <button class="nav-btn" onclick="app.switchTab('salary')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+        <span class="nav-label">급여</span>
+      </button>
+      <button class="nav-btn" onclick="app.switchTab('stats')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+        <span class="nav-label">통계</span>
+      </button>
+      <button class="nav-btn" onclick="app.switchTab('employees')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <span class="nav-label">직원</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- 직원 추가/수정 모달 -->
+  <div id="employee-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="employee-modal-title">새 직원 추가</h3>
+        <button class="modal-close" onclick="app.closeEmployeeModal()">×</button>
+      </div>
+      <div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 8px;">프로필 사진</label>
+          <div class="flex items-center gap-3">
+            <div class="image-upload" id="employee-image-preview" onclick="document.getElementById('employee-image').click()">
+              <span style="font-size: 12px; color: #a8a29e;">사진 선택</span>
+              <input type="file" id="employee-image" accept="image/*" onchange="app.previewImage(event)">
+            </div>
+            <div style="flex: 1;">
+              <p class="text-xs text-muted">클릭해서 사진을 업로드하세요</p>
+              <p class="text-xs" style="color: #d6d3d1; margin-top: 4px;">선택하지 않으면 이니셜로 표시됩니다</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 8px;">색상 테마</label>
+          <div class="color-grid" id="color-picker"></div>
+        </div>
+
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">이름</label>
+          <input type="text" id="employee-name" placeholder="홍길동">
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">기본 시급</label>
+          <input type="number" id="employee-wage" placeholder="10500">
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">입사일</label>
+          <input type="date" id="employee-hire-date">
+        </div>
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 0.5px solid #e7e5e4;">
+          <div class="flex items-center justify-between mb-3">
+            <h4 style="font-size: 14px; font-weight: 600;">근무 스케줄</h4>
+            <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="app.addScheduleInput()">
+              + 추가
+            </button>
+          </div>
+          <div id="schedule-inputs"></div>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 0.5px solid #e7e5e4;">
+          <div class="flex items-center justify-between mb-3">
+            <h4 style="font-size: 14px; font-weight: 600;">시급 변경 이력</h4>
+            <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="app.addWageHistoryInput()">
+              + 시급 추가
+            </button>
+          </div>
+          <p class="text-xs text-muted" style="margin-bottom: 12px;">
+            과거 시급이 달랐다면 여기서 추가하세요. 날짜별로 자동 계산됩니다.
+          </p>
+          <div id="wage-history-inputs"></div>
+        </div>
+        <div class="flex gap-2" style="margin-top: 24px;">
+          <button class="btn btn-secondary" onclick="app.closeEmployeeModal()">취소</button>
+          <button class="btn btn-primary" onclick="app.saveEmployee()">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 수동 기록 추가 모달 -->
+  <div id="manual-record-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">수동 기록 추가</h3>
+        <button class="modal-close" onclick="app.closeManualRecordModal()">×</button>
+      </div>
+      <div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">직원</label>
+          <select id="manual-employee"></select>
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">날짜</label>
+          <input type="date" id="manual-date">
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">시간대</label>
+          <select id="manual-period">
+            <option value="오전">오전</option>
+            <option value="오후">오후</option>
+            <option value="야간">야간</option>
+          </select>
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">근무 시간</label>
+          <input type="number" step="0.5" id="manual-hours" placeholder="7">
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">시급</label>
+          <input type="number" id="manual-wage" placeholder="10500">
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">차감 금액 (선택)</label>
+          <input type="number" id="manual-deduction" placeholder="0">
+        </div>
+        <div class="section">
+          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">차감 사유 (선택)</label>
+          <input type="text" id="manual-deduction-reason" placeholder="예: 조퇴, 물품 파손">
+        </div>
+        <div class="flex gap-2" style="margin-top: 24px;">
+          <button class="btn btn-secondary" onclick="app.closeManualRecordModal()">취소</button>
+          <button class="btn btn-primary" onclick="app.saveManualRecord()">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <script>
+    const app = {
+      currentTab: 'today',
+      currentDate: new Date(),
+      calendarMonth: new Date(),
+      salaryMonth: new Date(),
+      statsMonth: new Date(),
+      editingEmployeeId: null,
+      selectedColor: 0,
+      selectedImage: null,
+      
+      data: {
+        employees: [],
+        attendance: []
+      },
+
+      availableColors: [
+        { bg: '#f3e8ff', text: '#6b21a8', dot: '#a855f7' }, // 보라
+        { bg: '#dbeafe', text: '#1e40af', dot: '#3b82f6' }, // 파랑
+        { bg: '#fed7aa', text: '#9a3412', dot: '#f97316' }, // 주황
+        { bg: '#fce7f3', text: '#9f1239', dot: '#ec4899' }, // 핑크
+        { bg: '#d1fae5', text: '#065f46', dot: '#10b981' }, // 초록
+        { bg: '#fef3c7', text: '#92400e', dot: '#fbbf24' }, // 노랑
+        { bg: '#e0e7ff', text: '#3730a3', dot: '#6366f1' }, // 인디고
+        { bg: '#fecaca', text: '#991b1b', dot: '#ef4444' }  // 빨강
+      ],
+
+      getEmployeeColor(employeeId) {
+        const emp = this.data.employees.find(e => e.id === employeeId);
+        if (!emp || emp.colorIndex === undefined) return this.availableColors[0];
+        return this.availableColors[emp.colorIndex % this.availableColors.length];
+      },
+
+      init() {
+        this.loadData();
+        this.setupNotifications();
+        this.render();
+        
+        const today = new Date();
+        document.getElementById('employee-hire-date').value = this.formatDate(today);
+        document.getElementById('manual-date').value = this.formatDate(today);
+        document.getElementById('today-date').value = this.formatDate(today);
+        
+        this.renderColorPicker();
+      },
+
+      renderColorPicker() {
+        const picker = document.getElementById('color-picker');
+        picker.innerHTML = this.availableColors.map((color, index) => 
+          `<div class="color-option ${index === this.selectedColor ? 'selected' : ''}" 
+                style="background: ${color.bg}; border-color: ${color.text};"
+                onclick="app.selectColor(${index})"></div>`
+        ).join('');
+      },
+
+      selectColor(index) {
+        this.selectedColor = index;
+        this.renderColorPicker();
+      },
+
+      previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.selectedImage = e.target.result;
+            const preview = document.getElementById('employee-image-preview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="프로필">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      },
+
+      async requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+          await Notification.requestPermission();
+        }
+      },
+
+      setupNotifications() {
+        this.requestNotificationPermission();
+        
+        setInterval(() => {
+          const now = new Date();
+          if (now.getHours() === 8 && now.getMinutes() === 0) {
+            this.showDailyNotification();
+          }
+        }, 60000);
+      },
+
+      showDailyNotification() {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const today = this.formatDate(new Date());
+          const schedules = this.getTodaySchedules(today);
+          
+          if (schedules.length > 0) {
+            const names = schedules.map(s => s.employee.name).join(', ');
+            new Notification('오늘 근무 예정', {
+              body: `${names}님 출근일입니다`,
+              icon: '💼'
+            });
+          }
+        }
+      },
+
+      loadData() {
+        const saved = localStorage.getItem('salaryAppData');
+        if (saved) {
+          this.data = JSON.parse(saved);
+        } else {
+          this.data = {
+            employees: [
+              {
+                id: 1,
+                name: '김예슬',
+                status: 'active',
+                hireDate: '2026-03-01',
+                colorIndex: 0,
+                profileImage: null,
+                schedules: [
+                  { day: '월', period: '오후', hours: 7, wage: 10500, startDate: '2026-04-01' },
+                  { day: '수', period: '오후', hours: 7, wage: 10500, startDate: '2026-04-01' }
+                ]
+              },
+              {
+                id: 2,
+                name: '서유빈',
+                status: 'active',
+                hireDate: '2026-03-01',
+                colorIndex: 1,
+                profileImage: null,
+                schedules: [
+                  { day: '월', period: '오전', hours: 4.5, wage: 10320, startDate: '2026-03-01' },
+                  { day: '목', period: '오전', hours: 5.5, wage: 10320, startDate: '2026-03-01' },
+                  { day: '금', period: '오전', hours: 4.5, wage: 10320, startDate: '2026-03-01' }
+                ]
+              },
+              {
+                id: 3,
+                name: '이재상',
+                status: 'active',
+                hireDate: '2026-04-01',
+                colorIndex: 2,
+                profileImage: null,
+                schedules: [
+                  { day: '화', period: '오후', hours: 7, wage: 10320, startDate: '2026-04-01' }
+                ]
+              }
+            ],
+            attendance: []
+          };
+          this.saveData();
+        }
+      },
+
+      saveData() {
+        localStorage.setItem('salaryAppData', JSON.stringify(this.data));
+      },
+
+      formatDate(d) {
+        return d.getFullYear() + '-' + 
+               String(d.getMonth() + 1).padStart(2, '0') + '-' + 
+               String(d.getDate()).padStart(2, '0');
+      },
+
+      formatMonth(d) {
+        return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월';
+      },
+
+      getDayName(d) {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        return days[d.getDay()];
+      },
+
+      switchTab(tab) {
+        this.currentTab = tab;
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        
+        event.target.closest('.nav-btn').classList.add('active');
+        document.getElementById(`screen-${tab}`).classList.add('active');
+        
+        this.render();
+      },
+
+      setDate(dateStr) {
+        this.currentDate = new Date(dateStr);
+        this.render();
+      },
+
+      changeDate(delta) {
+        this.currentDate.setDate(this.currentDate.getDate() + delta);
+        document.getElementById('today-date').value = this.formatDate(this.currentDate);
+        this.render();
+      },
+
+      changeCalendarMonth(delta) {
+        this.calendarMonth.setMonth(this.calendarMonth.getMonth() + delta);
+        this.renderCalendar();
+      },
+
+      changeSalaryMonth(delta) {
+        this.salaryMonth.setMonth(this.salaryMonth.getMonth() + delta);
+        this.renderSalary();
+      },
+
+      changeStatsMonth(delta) {
+        this.statsMonth.setMonth(this.statsMonth.getMonth() + delta);
+        this.renderStats();
+      },
+
+      render() {
+        if (this.currentTab === 'today') this.renderToday();
+        if (this.currentTab === 'calendar') this.renderCalendar();
+        if (this.currentTab === 'salary') this.renderSalary();
+        if (this.currentTab === 'stats') this.renderStats();
+        if (this.currentTab === 'employees') this.renderEmployees();
+      },
+
+      getTodaySchedules(dateStr) {
+        const d = new Date(dateStr);
+        const dayName = this.getDayName(d);
+        
+        const schedules = [];
+        this.data.employees.filter(e => e.status === 'active').forEach(emp => {
+          // 해당 요일의 스케줄만 필터링
+          const daySchedules = emp.schedules.filter(s => s.day === dayName);
+          
+          // 시간대별로 그룹핑 (오전/오후/야간)
+          const periodGroups = {};
+          daySchedules.forEach(schedule => {
+            if (!periodGroups[schedule.period]) {
+              periodGroups[schedule.period] = [];
+            }
+            periodGroups[schedule.period].push(schedule);
+          });
+          
+          // 각 시간대별로 해당 날짜에 적용되는 최신 스케줄 선택
+          Object.keys(periodGroups).forEach(period => {
+            const applicableSchedules = periodGroups[period]
+              .filter(s => s.startDate <= dateStr)
+              .sort((a, b) => b.startDate.localeCompare(a.startDate));
+            
+            if (applicableSchedules.length > 0) {
+              const schedule = applicableSchedules[0]; // 가장 최신 스케줄
+              
+              const attendance = this.data.attendance.find(a => 
+                a.employeeId === emp.id && 
+                a.date === dateStr && 
+                a.period === schedule.period
+              );
+              
+              schedules.push({
+                ...schedule,
+                employee: emp,
+                attendance: attendance
+              });
+            }
+          });
+        });
+        
+        // 수동 기록도 포함
+        this.data.attendance.forEach(att => {
+          if (att.date === dateStr && att.worked) {
+            const emp = this.data.employees.find(e => e.id === att.employeeId);
+            const alreadyExists = schedules.some(s => 
+              s.employee.id === att.employeeId && s.period === att.period
+            );
+            
+            if (!alreadyExists && emp) {
+              schedules.push({
+                hours: att.hours,
+                wage: att.wage,
+                period: att.period,
+                employee: emp,
+                attendance: att,
+                isManual: true
+              });
+            }
+          }
+        });
+        
+        return schedules;
+      },
+
+      renderToday() {
+        const dateStr = this.formatDate(this.currentDate);
+        const schedules = this.getTodaySchedules(dateStr);
+        
+        const content = document.getElementById('today-content');
+        
+        if (schedules.length === 0) {
+          content.innerHTML = `
+            <div class="text-center" style="padding: 64px 0; color: #a8a29e; font-size: 13px;">
+              오늘 근무 예정 없음
+            </div>
+          `;
+          return;
+        }
+        
+        const periods = ['오전', '오후', '야간'];
+        let html = '';
+        
+        periods.forEach(period => {
+          const periodSchedules = schedules.filter(s => s.period === period);
+          if (periodSchedules.length === 0) return;
+          
+          html += `
+            <div class="section">
+              <div class="section-header">
+                <h3 class="section-title">${period} 근무</h3>
+                <span class="section-subtitle">${periodSchedules.length}명</span>
+              </div>
+              ${periodSchedules.map(shift => {
+                const { employee, hours, wage, attendance, period, isManual } = shift;
+                const checked = attendance?.worked ? 'checked' : '';
+                const detailStyle = checked ? '' : 'display: none;';
+                const color = this.getEmployeeColor(employee.id);
+                const actualHours = attendance?.actualHours || hours;
+                
+                return `
+                  <div class="card">
+                    <div class="flex items-center gap-3">
+                      <input type="checkbox" class="checkbox" ${checked} 
+                        onchange="app.toggleAttendance(${employee.id}, '${period}', this.checked, 'detail-${employee.id}-${period}')">
+                      <div class="avatar" style="background: ${color.bg}; color: ${color.text}; width: 40px; height: 40px; font-size: 13px;">
+                        ${employee.profileImage ? 
+                          `<img src="${employee.profileImage}" alt="${employee.name}">` : 
+                          employee.name.substring(0, 2)}
+                      </div>
+                      <div style="flex: 1;">
+                        <div class="card-title">${employee.name}</div>
+                        <div class="card-meta">${hours}시간 · ₩${wage.toLocaleString()}</div>
+                        ${isManual ? '<span style="font-size: 10px; color: #3b82f6;">수동 기록</span>' : ''}
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 15px; font-weight: 600; color: #78716c;">
+                          ₩${(actualHours * wage).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div id="detail-${employee.id}-${period}" style="${detailStyle} margin-top: 16px; padding-top: 16px; border-top: 0.5px solid #e7e5e4;">
+                      <div class="section">
+                        <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">실제 근무 시간</label>
+                        <div class="flex gap-2 items-center">
+                          <input type="number" step="0.5" id="actual-hours-${employee.id}-${period}" 
+                            placeholder="${hours}" value="${attendance?.actualHours || ''}" style="font-size: 14px; flex: 1;">
+                          <span class="text-xs text-muted"시간 (기본: ${hours}시간)</span>
+                        </div>
+                        <p class="text-xs" style="color: #a8a29e; margin-top: 4px;">
+                          * 연장/지각 있을 경우 실제 근무 시간 입력
+                        </p>
+                      </div>
+                      
+                      <div class="flex items-center gap-2 mb-3">
+                        <input type="checkbox" class="checkbox" style="width: 18px; height: 18px;" id="deduct-${employee.id}-${period}"
+                          ${attendance?.deductionAmount ? 'checked' : ''}
+                          onchange="app.toggleDeduction('deduct-${employee.id}-${period}', 'deduction-${employee.id}-${period}')">
+                        <label for="deduct-${employee.id}-${period}" style="font-size: 14px; color: #78716c; cursor: pointer;">차감 금액 있음</label>
+                      </div>
+                      <div id="deduction-${employee.id}-${period}" style="display: ${attendance?.deductionAmount ? 'block' : 'none'};">
+                        <div class="section">
+                          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">차감 금액</label>
+                          <input type="number" id="deduction-amount-${employee.id}-${period}" 
+                            placeholder="5,000" value="${attendance?.deductionAmount || ''}" style="font-size: 14px;">
+                        </div>
+                        <div class="section">
+                          <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">사유</label>
+                          <input type="text" id="deduction-reason-${employee.id}-${period}" 
+                            placeholder="예: 물품 파손, 조퇴 등" value="${attendance?.deductionReason || ''}" style="font-size: 14px;">
+                        </div>
+                      </div>
+                      <div class="flex gap-2" style="margin-top: 12px;">
+                        <button class="btn btn-danger" onclick="app.deleteAttendance(${employee.id}, '${period}')">삭제</button>
+                        <button class="btn btn-primary" onclick="app.saveAttendance(${employee.id}, '${period}')">저장</button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+        });
+        
+        content.innerHTML = html;
+      },
+
+      toggleAttendance(employeeId, period, checked, detailId) {
+        const detail = document.getElementById(detailId);
+        if (checked) {
+          detail.style.display = 'block';
+        } else {
+          detail.style.display = 'none';
+        }
+      },
+
+      toggleDeduction(checkboxId, deductionId) {
+        const checkbox = document.getElementById(checkboxId);
+        const deduction = document.getElementById(deductionId);
+        deduction.style.display = checkbox.checked ? 'block' : 'none';
+      },
+
+      saveAttendance(employeeId, period) {
+        const dateStr = this.formatDate(this.currentDate);
+        const employee = this.data.employees.find(e => e.id === employeeId);
+        const dayName = this.getDayName(this.currentDate);
+        
+        // 해당 날짜, 요일, 시간대에 맞는 최신 스케줄 찾기
+        const applicableSchedules = employee.schedules
+          .filter(s => s.day === dayName && s.period === period && s.startDate <= dateStr)
+          .sort((a, b) => b.startDate.localeCompare(a.startDate));
+        
+        const schedule = applicableSchedules.length > 0 ? applicableSchedules[0] : null;
+        
+        if (!schedule) {
+          alert('해당 요일/시간대의 스케줄을 찾을 수 없습니다.');
+          return;
+        }
+        
+        const actualHoursInput = document.getElementById(`actual-hours-${employeeId}-${period}`).value;
+        const actualHours = actualHoursInput ? parseFloat(actualHoursInput) : schedule.hours;
+        const deductionAmount = parseInt(document.getElementById(`deduction-amount-${employeeId}-${period}`).value) || 0;
+        const deductionReason = document.getElementById(`deduction-reason-${employeeId}-${period}`).value;
+        
+        this.data.attendance = this.data.attendance.filter(a => 
+          !(a.employeeId === employeeId && a.date === dateStr && a.period === period)
+        );
+        
+        this.data.attendance.push({
+          employeeId,
+          date: dateStr,
+          period,
+          worked: true,
+          hours: schedule.hours,
+          actualHours: actualHours,
+          wage: schedule.wage,
+          deductionAmount,
+          deductionReason
+        });
+        
+        this.saveData();
+        this.showToast('출근 기록 저장됨');
+        this.render();
+      },
+
+      deleteAttendance(employeeId, period) {
+        if (!confirm('이 기록을 삭제하시겠습니까?')) return;
+        
+        const dateStr = this.formatDate(this.currentDate);
+        this.data.attendance = this.data.attendance.filter(a => 
+          !(a.employeeId === employeeId && a.date === dateStr && a.period === period)
+        );
+        
+        this.saveData();
+        this.showToast('기록 삭제됨');
+        this.render();
+      },
+
+      renderCalendar() {
+        const year = this.calendarMonth.getFullYear();
+        const month = this.calendarMonth.getMonth();
+        
+        document.getElementById('calendar-month').textContent = this.formatMonth(this.calendarMonth);
+        
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        
+        const days = [];
+        
+        for (let i = 0; i < firstDay; i++) {
+          days.push('<div class="calendar-day"></div>');
+        }
+        
+        const today = this.formatDate(new Date());
+        for (let date = 1; date <= lastDate; date++) {
+          const d = new Date(year, month, date);
+          const dateStr = this.formatDate(d);
+          const isToday = dateStr === today;
+          
+          const records = this.data.attendance.filter(a => a.date === dateStr && a.worked);
+          const hasRecord = records.length > 0;
+          
+          const classes = ['calendar-day'];
+          if (isToday) classes.push('today');
+          if (hasRecord && !isToday) classes.push('has-record');
+          
+          const dots = records.length > 0 ? 
+            `<div class="calendar-day-dots">${records.map(r => {
+              const color = this.getEmployeeColor(r.employeeId);
+              return `<div class="calendar-dot" style="background: ${color.dot};"></div>`;
+            }).join('')}</div>` : '';
+          
+          days.push(`
+            <div class="${classes.join(' ')}" onclick="app.showCalendarDetail('${dateStr}')">
+              <div>${date}</div>
+              ${dots}
+            </div>
+          `);
+        }
+        
+        document.getElementById('calendar-days').innerHTML = days.join('');
+      },
+
+      showCalendarDetail(dateStr) {
+        const records = this.data.attendance.filter(a => a.date === dateStr && a.worked);
+        const detail = document.getElementById('calendar-detail');
+        
+        if (records.length === 0) {
+          detail.classList.add('hidden');
+          return;
+        }
+        
+        detail.classList.remove('hidden');
+        detail.innerHTML = `
+          <div class="section">
+            <div class="section-header">
+              <h3 class="section-title">${dateStr}</h3>
+            </div>
+            ${records.map(r => {
+              const emp = this.data.employees.find(e => e.id === r.employeeId);
+              const actualHours = r.actualHours || r.hours;
+              const pay = actualHours * r.wage - (r.deductionAmount || 0);
+              
+              return `
+                <div class="card">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="card-title">${emp.name}</div>
+                    <div class="text-sm" style="padding: 4px 12px; background: #f5f5f4; border-radius: 8px; font-weight: 600;">
+                      ${r.period}
+                    </div>
+                  </div>
+                  <div class="text-sm text-muted">
+                    ${actualHours}시간 × ₩${r.wage.toLocaleString()}
+                    ${r.deductionAmount ? ` - ₩${r.deductionAmount.toLocaleString()}` : ''}
+                    = <strong>₩${pay.toLocaleString()}</strong>
+                  </div>
+                  ${r.deductionReason ? `
+                    <div class="text-xs" style="margin-top: 8px; padding: 8px; background: #fef2f2; border-radius: 8px; color: #991b1b;">
+                      차감: ${r.deductionReason}
+                    </div>
+                  ` : ''}
+                  ${actualHours !== r.hours ? `
+                    <div class="text-xs" style="margin-top: 4px; color: #3b82f6;">
+                      ${actualHours > r.hours ? '연장근무' : '지각/조퇴'}: ${Math.abs(actualHours - r.hours)}시간
+                    </div>
+                  ` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      },
+
+      renderSalary() {
+        const year = this.salaryMonth.getFullYear();
+        const month = this.salaryMonth.getMonth() + 1;
+        
+        document.getElementById('salary-month').textContent = this.formatMonth(this.salaryMonth);
+        
+        const activeEmployees = this.data.employees.filter(e => e.status === 'active');
+        let totalSalary = 0;
+        
+        const html = activeEmployees.map(emp => {
+          const salary = this.calculateMonthlySalary(emp.id, year, month);
+          totalSalary += salary.final;
+          
+          return `
+            <div class="card" style="cursor: pointer;" onclick="app.toggleSalaryDetail(${emp.id})">
+              <div class="flex items-center justify-between mb-2">
+                <div class="card-title">${emp.name}</div>
+                <div style="font-size: 13px; color: #78716c;">›</div>
+              </div>
+              <div class="flex gap-3 text-sm text-muted mb-3">
+                <div>출근 ${salary.days}일</div>
+                <div>${salary.actualHours}시간</div>
+                ${salary.deduction > 0 ? `<div style="color: #dc2626;">차감 -₩${salary.deduction.toLocaleString()}</div>` : ''}
+              </div>
+              <div style="padding-top: 12px; border-top: 0.5px solid #e7e5e4;">
+                <div class="flex items-baseline justify-between">
+                  <span class="text-xs text-muted">지급액</span>
+                  <span style="font-size: 20px; font-weight: 700;">₩${salary.final.toLocaleString()}</span>
+                </div>
+              </div>
+              
+              <div id="salary-detail-${emp.id}" class="hidden" style="margin-top: 16px; padding-top: 16px; border-top: 0.5px solid #e7e5e4;">
+                ${this.renderSalaryDetail(emp.id, year, month)}
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('salary-list').innerHTML = html;
+        document.getElementById('total-salary').textContent = `₩${totalSalary.toLocaleString()}`;
+      },
+
+      toggleSalaryDetail(empId) {
+        const detail = document.getElementById(`salary-detail-${empId}`);
+        if (detail.classList.contains('hidden')) {
+          detail.classList.remove('hidden');
+        } else {
+          detail.classList.add('hidden');
+        }
+      },
+
+      renderSalaryDetail(empId, year, month) {
+        const records = this.data.attendance.filter(a => {
+          const date = new Date(a.date);
+          return a.employeeId === empId && 
+                 date.getFullYear() === year && 
+                 date.getMonth() + 1 === month &&
+                 a.worked;
+        }).sort((a, b) => a.date.localeCompare(b.date));
+        
+        if (records.length === 0) {
+          return '<p class="text-xs text-muted">근무 기록 없음</p>';
+        }
+        
+        return `
+          <div class="text-xs">
+            ${records.map(r => {
+              const actualHours = r.actualHours || r.hours;
+              const pay = actualHours * r.wage - (r.deductionAmount || 0);
+              const dateObj = new Date(r.date);
+              const dateStr = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
+              
+              return `
+                <div class="flex items-center justify-between" style="padding: 8px 0; border-bottom: 0.5px solid #f5f5f4;">
+                  <div>
+                    <span style="font-weight: 500;">${dateStr} (${r.period})</span>
+                    <span style="color: #78716c; margin-left: 8px;">
+                      ${actualHours}h × ₩${r.wage.toLocaleString()}
+                      ${r.deductionAmount ? ` - ₩${r.deductionAmount.toLocaleString()}` : ''}
+                    </span>
+                  </div>
+                  <span style="font-weight: 600;">₩${pay.toLocaleString()}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      },
+
+      calculateMonthlySalary(employeeId, year, month) {
+        const records = this.data.attendance.filter(a => {
+          const date = new Date(a.date);
+          return a.employeeId === employeeId && 
+                 date.getFullYear() === year && 
+                 date.getMonth() + 1 === month &&
+                 a.worked;
+        });
+        
+        let totalHours = 0;
+        let totalActualHours = 0;
+        let totalPay = 0;
+        let totalDeduction = 0;
+        
+        records.forEach(r => {
+          const actualHours = r.actualHours || r.hours;
+          totalHours += r.hours;
+          totalActualHours += actualHours;
+          totalPay += actualHours * r.wage;
+          totalDeduction += r.deductionAmount || 0;
+        });
+        
+        return {
+          days: records.length,
+          hours: totalHours,
+          actualHours: totalActualHours,
+          pay: totalPay,
+          deduction: totalDeduction,
+          final: totalPay - totalDeduction
+        };
+      },
+
+      renderStats() {
+        document.getElementById('stats-month').textContent = this.formatMonth(this.statsMonth);
+        
+        this.renderSalaryChart();
+        this.renderEmployeeStats();
+        this.renderMVP();
+      },
+
+      renderSalaryChart() {
+        const ctx = document.getElementById('salary-chart');
+        
+        if (this.salaryChart) {
+          this.salaryChart.destroy();
+        }
+        
+        const labels = [];
+        const data = [];
+        
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(this.statsMonth);
+          d.setMonth(d.getMonth() - i);
+          const year = d.getFullYear();
+          const month = d.getMonth() + 1;
+          
+          labels.push(`${month}월`);
+          
+          let monthTotal = 0;
+          this.data.employees.forEach(emp => {
+            const salary = this.calculateMonthlySalary(emp.id, year, month);
+            monthTotal += salary.final;
+          });
+          
+          data.push(monthTotal);
+        }
+        
+        this.salaryChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: '인건비',
+              data: data,
+              borderColor: '#1c1917',
+              backgroundColor: 'rgba(28, 25, 23, 0.1)',
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return '₩' + (value / 1000) + 'k';
+                  }
+                }
+              }
+            }
+          }
+        });
+      },
+
+      renderEmployeeStats() {
+        const year = this.statsMonth.getFullYear();
+        const month = this.statsMonth.getMonth() + 1;
+        
+        const stats = this.data.employees
+          .filter(e => e.status === 'active')
+          .map(emp => {
+            const salary = this.calculateMonthlySalary(emp.id, year, month);
+            return { emp, ...salary };
+          })
+          .sort((a, b) => b.actualHours - a.actualHours);
+        
+        const html = stats.map(s => `
+          <div class="card">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="card-title">${s.emp.name}</div>
+                <div class="card-meta">${s.actualHours}시간 · ${s.days}일</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 16px; font-weight: 700;">₩${s.final.toLocaleString()}</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        document.getElementById('employee-stats').innerHTML = html || '<div class="text-center text-muted text-sm" style="padding: 32px 0;">데이터 없음</div>';
+      },
+
+      renderMVP() {
+        const year = this.statsMonth.getFullYear();
+        const month = this.statsMonth.getMonth() + 1;
+        
+        const stats = this.data.employees
+          .filter(e => e.status === 'active')
+          .map(emp => {
+            const salary = this.calculateMonthlySalary(emp.id, year, month);
+            return { emp, ...salary };
+          })
+          .sort((a, b) => b.actualHours - a.actualHours);
+        
+        if (stats.length === 0 || stats[0].actualHours === 0) {
+          document.getElementById('mvp-card').innerHTML = '<div class="text-center text-muted text-sm" style="padding: 32px 0;">데이터 없음</div>';
+          return;
+        }
+        
+        const mvp = stats[0];
+        
+        document.getElementById('mvp-card').innerHTML = `
+          <div class="card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+            <div class="flex items-center gap-3">
+              <div style="font-size: 40px;">🏆</div>
+              <div style="flex: 1;">
+                <div style="font-size: 18px; font-weight: 700; color: #92400e;">${mvp.emp.name}</div>
+                <div style="font-size: 13px; color: #92400e; margin-top: 4px;">
+                  ${mvp.actualHours}시간 근무 · ${mvp.days}일 출근
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      renderEmployees() {
+        const activeEmployees = this.data.employees.filter(e => e.status === 'active');
+        const retiredEmployees = this.data.employees.filter(e => e.status === 'retired');
+        
+        document.getElementById('active-count').textContent = `${activeEmployees.length}명`;
+        
+        const html = activeEmployees.map((emp) => {
+          const color = this.getEmployeeColor(emp.id);
+          const initials = emp.name.substring(0, 2);
+          
+          return `
+            <div class="card">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="avatar" style="background: ${color.bg}; color: ${color.text};">
+                  ${emp.profileImage ? 
+                    `<img src="${emp.profileImage}" alt="${emp.name}">` : 
+                    initials}
+                </div>
+                <div style="flex: 1;">
+                  <div class="card-title">${emp.name}</div>
+                  <div class="card-meta">입사일 ${emp.hireDate}</div>
+                </div>
+              </div>
+              <div style="background: #fafaf9; border-radius: 10px; padding: 12px; margin-bottom: 12px;">
+                ${emp.schedules.map(s => `
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-muted">${s.day} ${s.period}</span>
+                    <span style="font-weight: 600;">${s.hours}시간 · ₩${s.wage.toLocaleString()}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary" onclick="app.editEmployee(${emp.id})">수정</button>
+                <button class="btn btn-danger" onclick="app.retireEmployee(${emp.id})">퇴사처리</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        document.getElementById('active-employees').innerHTML = html;
+        
+        if (retiredEmployees.length > 0) {
+          document.getElementById('retired-section').style.display = 'block';
+          document.getElementById('retired-count').textContent = `${retiredEmployees.length}명`;
+          
+          const retiredHtml = retiredEmployees.map(emp => {
+            const initials = emp.name.substring(0, 2);
+            return `
+              <div class="card" style="background: #fafaf9;">
+                <div class="flex items-center gap-3">
+                  <div class="avatar" style="background: #e7e5e4; color: #78716c;">
+                    ${emp.profileImage ? 
+                      `<img src="${emp.profileImage}" alt="${emp.name}">` : 
+                      initials}
+                  </div>
+                  <div style="flex: 1;">
+                    <div class="card-title" style="color: #78716c;">${emp.name}</div>
+                    <div class="card-meta">퇴사일 ${emp.leaveDate}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          document.getElementById('retired-employees').innerHTML = retiredHtml;
+        } else {
+          document.getElementById('retired-section').style.display = 'none';
+        }
+      },
+
+      showEmployeeModal(employeeId = null) {
+        this.editingEmployeeId = employeeId;
+        this.selectedImage = null;
+        
+        if (employeeId) {
+          const emp = this.data.employees.find(e => e.id === employeeId);
+          document.getElementById('employee-modal-title').textContent = '직원 수정';
+          document.getElementById('employee-name').value = emp.name;
+          document.getElementById('employee-wage').value = emp.schedules[0]?.wage || '';
+          document.getElementById('employee-hire-date').value = emp.hireDate;
+          this.selectedColor = emp.colorIndex || 0;
+          this.selectedImage = emp.profileImage;
+          
+          const preview = document.getElementById('employee-image-preview');
+          if (emp.profileImage) {
+            preview.innerHTML = `<img src="${emp.profileImage}" alt="프로필">`;
+          } else {
+            preview.innerHTML = '<span style="font-size: 12px; color: #a8a29e;">사진 선택</span>';
+          }
+          
+          document.getElementById('schedule-inputs').innerHTML = '';
+          const uniqueSchedules = {};
+          emp.schedules.forEach(schedule => {
+            const key = schedule.day + ':' + schedule.period;
+            if (!uniqueSchedules[key] || schedule.startDate > uniqueSchedules[key].startDate) {
+              uniqueSchedules[key] = schedule;
+            }
+          });
+          Object.values(uniqueSchedules).forEach(schedule => {
+            this.addScheduleInput(schedule);
+          });
+          
+          // 시급 이력 표시
+          document.getElementById('wage-history-inputs').innerHTML = '';
+          const wageHistory = this.getWageHistory(emp);
+          wageHistory.forEach(history => {
+            this.addWageHistoryInput(history);
+          });
+        } else {
+          document.getElementById('employee-modal-title').textContent = '새 직원 추가';
+          document.getElementById('employee-name').value = '';
+          document.getElementById('employee-wage').value = '';
+          document.getElementById('employee-hire-date').value = this.formatDate(new Date());
+          this.selectedColor = 0;
+          
+          const preview = document.getElementById('employee-image-preview');
+          preview.innerHTML = '<span style="font-size: 12px; color: #a8a29e;">사진 선택</span>';
+          
+          document.getElementById('schedule-inputs').innerHTML = '';
+          this.addScheduleInput();
+          
+          document.getElementById('wage-history-inputs').innerHTML = '';
+        }
+        
+        this.renderColorPicker();
+        document.getElementById('employee-modal').classList.add('active');
+      },
+
+      getWageHistory(emp) {
+        const history = [];
+        const wageMap = new Map();
+        
+        emp.schedules.forEach(s => {
+          const key = s.startDate + ':' + s.wage;
+          if (!wageMap.has(key)) {
+            wageMap.set(key, { startDate: s.startDate, wage: s.wage });
+          }
+        });
+        
+        return Array.from(wageMap.values()).sort((a, b) => a.startDate.localeCompare(b.startDate));
+      },
+
+      addWageHistoryInput(history = null) {
+        const container = document.getElementById('wage-history-inputs');
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.background = '#f0fdf4';
+        div.style.marginBottom = '12px';
+        div.style.border = '0.5px solid #bbf7d0';
+        div.innerHTML = `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">적용 시작일</label>
+              <input type="date" class="wage-start-date" value="${history?.startDate || ''}" style="font-size: 14px;">
+            </div>
+            <div>
+              <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">시급</label>
+              <input type="number" class="wage-amount" placeholder="10000" value="${history?.wage || ''}" style="font-size: 14px;">
+            </div>
+          </div>
+          <p class="text-xs" style="color: #15803d; margin-bottom: 8px;">
+            이 날짜부터 해당 시급이 적용됩니다
+          </p>
+          <button class="btn-danger" style="width: 100%; padding: 8px; font-size: 12px;" onclick="this.closest('.card').remove()">삭제</button>
+        `;
+        
+        container.appendChild(div);
+      },
+
+      closeEmployeeModal() {
+        document.getElementById('employee-modal').classList.remove('active');
+        this.editingEmployeeId = null;
+        this.selectedImage = null;
+      },
+
+      addScheduleInput(schedule = null) {
+        const container = document.getElementById('schedule-inputs');
+        
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.background = '#fafaf9';
+        div.style.marginBottom = '12px';
+        div.innerHTML = `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <div>
+              <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">요일</label>
+              <select class="schedule-day" style="font-size: 14px;">
+                <option value="월" ${schedule?.day === '월' ? 'selected' : ''}>월</option>
+                <option value="화" ${schedule?.day === '화' ? 'selected' : ''}>화</option>
+                <option value="수" ${schedule?.day === '수' ? 'selected' : ''}>수</option>
+                <option value="목" ${schedule?.day === '목' ? 'selected' : ''}>목</option>
+                <option value="금" ${schedule?.day === '금' ? 'selected' : ''}>금</option>
+                <option value="토" ${schedule?.day === '토' ? 'selected' : ''}>토</option>
+                <option value="일" ${schedule?.day === '일' ? 'selected' : ''}>일</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">시간대</label>
+              <select class="schedule-period" style="font-size: 14px;">
+                <option value="오전" ${schedule?.period === '오전' ? 'selected' : ''}>오전</option>
+                <option value="오후" ${schedule?.period === '오후' ? 'selected' : ''}>오후</option>
+                <option value="야간" ${schedule?.period === '야간' ? 'selected' : ''}>야간</option>
+              </select>
+            </div>
+          </div>
+          <div class="section">
+            <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">근무 시간</label>
+            <input type="number" step="0.5" class="schedule-hours" placeholder="7" value="${schedule?.hours || ''}" style="font-size: 14px;">
+          </div>
+          <div class="section">
+            <label class="text-xs text-muted" style="display: block; margin-bottom: 4px;">시급</label>
+            <input type="number" class="schedule-wage" placeholder="10500" value="${schedule?.wage || ''}" style="font-size: 14px;">
+          </div>
+          <button class="btn-danger" style="width: 100%; padding: 8px; font-size: 12px;" onclick="this.closest('.card').remove()">삭제</button>
+        `;
+        
+        container.appendChild(div);
+      },
+
+      saveEmployee() {
+        const name = document.getElementById('employee-name').value;
+        const wage = parseInt(document.getElementById('employee-wage').value);
+        const hireDate = document.getElementById('employee-hire-date').value;
+        
+        if (!name || !wage || !hireDate) {
+          alert('필수 항목을 모두 입력해주세요.');
+          return;
+        }
+        
+        // 근무 스케줄 수집
+        const baseSchedules = [];
+        document.querySelectorAll('#schedule-inputs .card').forEach(item => {
+          const day = item.querySelector('.schedule-day').value;
+          const period = item.querySelector('.schedule-period').value;
+          const hours = parseFloat(item.querySelector('.schedule-hours').value);
+          const scheduleWage = parseInt(item.querySelector('.schedule-wage').value);
+          
+          if (day && period && hours && scheduleWage) {
+            baseSchedules.push({
+              day,
+              period,
+              hours,
+              wage: scheduleWage
+            });
+          }
+        });
+        
+        if (baseSchedules.length === 0) {
+          alert('최소 1개 이상의 스케줄을 추가해주세요.');
+          return;
+        }
+        
+        // 시급 이력 수집
+        const wageHistories = [];
+        document.querySelectorAll('#wage-history-inputs .card').forEach(item => {
+          const startDate = item.querySelector('.wage-start-date').value;
+          const wageAmount = parseInt(item.querySelector('.wage-amount').value);
+          
+          if (startDate && wageAmount) {
+            wageHistories.push({
+              startDate,
+              wage: wageAmount
+            });
+          }
+        });
+        
+        // 시급 이력이 없으면 기본 시급만 사용
+        if (wageHistories.length === 0) {
+          wageHistories.push({
+            startDate: hireDate,
+            wage: wage
+          });
+        }
+        
+        // 시급 이력 정렬
+        wageHistories.sort((a, b) => a.startDate.localeCompare(b.startDate));
+        
+        // 각 스케줄에 대해 시급 이력별로 스케줄 생성
+        const allSchedules = [];
+        baseSchedules.forEach(baseSch => {
+          wageHistories.forEach(wageHist => {
+            allSchedules.push({
+              day: baseSch.day,
+              period: baseSch.period,
+              hours: baseSch.hours,
+              wage: wageHist.wage,
+              startDate: wageHist.startDate
+            });
+          });
+        });
+        
+        if (this.editingEmployeeId) {
+          const emp = this.data.employees.find(e => e.id === this.editingEmployeeId);
+          emp.name = name;
+          emp.hireDate = hireDate;
+          emp.schedules = allSchedules;
+          emp.colorIndex = this.selectedColor;
+          emp.profileImage = this.selectedImage;
+        } else {
+          const newId = Math.max(...this.data.employees.map(e => e.id), 0) + 1;
+          this.data.employees.push({
+            id: newId,
+            name,
+            status: 'active',
+            hireDate,
+            colorIndex: this.selectedColor,
+            profileImage: this.selectedImage,
+            schedules: allSchedules
+          });
+        }
+        
+        this.saveData();
+        this.closeEmployeeModal();
+        this.render();
+        this.showToast('직원 정보 저장됨');
+      },
+
+      editEmployee(id) {
+        this.showEmployeeModal(id);
+      },
+
+      retireEmployee(id) {
+        if (!confirm('정말 퇴사 처리하시겠습니까?')) return;
+        
+        const emp = this.data.employees.find(e => e.id === id);
+        emp.status = 'retired';
+        emp.leaveDate = this.formatDate(new Date());
+        
+        this.saveData();
+        this.render();
+        this.showToast('퇴사 처리됨');
+      },
+
+      showManualRecordModal() {
+        const select = document.getElementById('manual-employee');
+        const activeEmployees = this.data.employees.filter(e => e.status === 'active');
+        
+        select.innerHTML = '<option value="">선택하세요</option>' + 
+          activeEmployees.map(emp => `<option value="${emp.id}">${emp.name}</option>`).join('');
+        
+        document.getElementById('manual-record-modal').classList.add('active');
+      },
+
+      closeManualRecordModal() {
+        document.getElementById('manual-record-modal').classList.remove('active');
+      },
+
+      saveManualRecord() {
+        const employeeId = parseInt(document.getElementById('manual-employee').value);
+        const date = document.getElementById('manual-date').value;
+        const period = document.getElementById('manual-period').value;
+        const hours = parseFloat(document.getElementById('manual-hours').value);
+        const wage = parseInt(document.getElementById('manual-wage').value);
+        const deductionAmount = parseInt(document.getElementById('manual-deduction').value) || 0;
+        const deductionReason = document.getElementById('manual-deduction-reason').value;
+        
+        if (!employeeId || !date || !hours || !wage) {
+          alert('필수 항목을 모두 입력해주세요.');
+          return;
+        }
+        
+        this.data.attendance = this.data.attendance.filter(a => 
+          !(a.employeeId === employeeId && a.date === date && a.period === period)
+        );
+        
+        this.data.attendance.push({
+          employeeId,
+          date,
+          period,
+          worked: true,
+          hours,
+          actualHours: hours,
+          wage,
+          deductionAmount,
+          deductionReason
+        });
+        
+        this.saveData();
+        this.closeManualRecordModal();
+        this.render();
+        this.showToast('수동 기록 추가됨');
+      },
+
+      downloadStatement() {
+        const year = this.salaryMonth.getFullYear();
+        const month = this.salaryMonth.getMonth() + 1;
+        
+        let csv = '직원명,출근일수,근무시간,기본급여,차감금액,최종지급액\n';
+        
+        const activeEmployees = this.data.employees.filter(e => e.status === 'active');
+        activeEmployees.forEach(emp => {
+          const salary = this.calculateMonthlySalary(emp.id, year, month);
+          csv += `${emp.name},${salary.days},${salary.actualHours},${salary.pay},${salary.deduction},${salary.final}\n`;
+        });
+        
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `급여명세서_${year}년${month}월.csv`;
+        link.click();
+        
+        this.showToast('명세서 다운로드됨');
+      },
+
+      showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          ${message}
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.remove();
+        }, 2000);
+      }
+    };
+
+    app.init();
+  </script>
+</body>
+</html>
